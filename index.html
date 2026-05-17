@@ -4,24 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Dispatch">
-<meta name="theme-color" content="#EFE7D6">
-<title>Dispatch — Daily news, read to you</title>
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Digest">
+<meta name="theme-color" content="#ffffff">
+<title>Digest — Your daily briefing</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=Source+Sans+3:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #EFE7D6;
-    --paper-deep: #E5DBC6;
-    --ink: #1F1A14;
-    --ink-soft: #4A3F30;
-    --ink-mute: #8A7C66;
-    --rule: #D5C8AB;
-    --accent: #B8421F;
-    --gold: #C49A3E;
-    --shadow: 0 1px 0 rgba(31,26,20,0.06), 0 8px 24px -8px rgba(31,26,20,0.18);
+    --paper: #ffffff;
+    --paper-deep: #f7f7f5;
+    --ink: #121212;
+    --ink-soft: #333333;
+    --ink-mute: #666666;
+    --ink-faint: #999999;
+    --rule: #e2e2e2;
+    --rule-strong: #121212;
+    --accent: #567B95;       /* NYT link blue */
+    --tag: #d0021b;          /* breaking-news red, used very sparingly */
+    --shadow: 0 1px 0 rgba(0,0,0,0.04);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -29,7 +31,7 @@
   html, body {
     background: var(--paper);
     color: var(--ink);
-    font-family: 'Manrope', system-ui, sans-serif;
+    font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overscroll-behavior-y: none;
@@ -37,118 +39,114 @@
   }
 
   body {
-    background:
-      radial-gradient(ellipse at top, rgba(196,154,62,0.10), transparent 55%),
-      radial-gradient(ellipse at bottom right, rgba(184,66,31,0.06), transparent 50%),
-      var(--paper);
+    background: var(--paper);
     padding-bottom: 180px;
-  }
-
-  /* Paper grain noise overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.35;
-    z-index: 0;
-    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.10 0 0 0 0 0.08 0 0 0 0.22 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-    mix-blend-mode: multiply;
   }
 
   .app {
     max-width: 540px;
     margin: 0 auto;
-    padding: max(env(safe-area-inset-top), 24px) 22px 0;
+    padding: max(env(safe-area-inset-top), 16px) 20px 0;
     position: relative;
     z-index: 1;
   }
 
-  /* MASTHEAD */
+  /* MASTHEAD — NYT style */
   .masthead {
     text-align: center;
-    padding: 8px 0 28px;
-    border-bottom: 1px solid var(--rule);
-    position: relative;
-  }
-  .masthead::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
-    height: 1px;
-    background: var(--rule);
+    padding: 4px 0 0;
   }
 
-  .date {
-    font-size: 11px;
+  /* Date bar — top */
+  .date-bar {
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 6px 0;
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
     font-weight: 600;
-    letter-spacing: 0.24em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+    color: var(--ink);
+  }
+  .date-bar .edition {
+    font-family: 'Source Serif 4', serif;
+    font-style: italic;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 11px;
     color: var(--ink-mute);
-    margin-bottom: 10px;
   }
 
+  /* Wordmark */
   .wordmark {
-    font-family: 'Fraunces', serif;
-    font-weight: 400;
-    font-variation-settings: "opsz" 144, "SOFT" 0;
-    font-size: clamp(52px, 13vw, 72px);
-    line-height: 0.95;
+    font-family: 'Playfair Display', 'Times New Roman', serif;
+    font-weight: 900;
+    font-size: clamp(58px, 15vw, 88px);
+    line-height: 0.92;
     color: var(--ink);
-    letter-spacing: -0.025em;
-  }
-  .wordmark em {
-    font-style: italic;
-    font-weight: 300;
-    color: var(--accent);
+    letter-spacing: -0.02em;
+    padding: 4px 0 12px;
   }
 
   .tagline {
-    font-family: 'Fraunces', serif;
+    font-family: 'Source Serif 4', serif;
     font-style: italic;
-    font-weight: 300;
-    font-size: 14px;
+    font-weight: 400;
+    font-size: 13px;
     color: var(--ink-soft);
-    margin-top: 8px;
-    letter-spacing: 0.01em;
+    padding: 0 0 14px;
+    border-bottom: 3px double var(--ink);
   }
 
   /* TOPIC SELECTION */
   .topics-section {
-    margin-top: 32px;
+    margin-top: 26px;
   }
 
   .label {
-    font-size: 11px;
+    font-family: 'Source Serif 4', serif;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--ink-mute);
-    margin-bottom: 14px;
+    color: var(--ink);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
   }
 
   .topics {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
   }
 
   .topic {
     border: 1px solid var(--ink);
-    background: transparent;
+    background: var(--paper);
     color: var(--ink);
-    padding: 9px 16px;
-    border-radius: 999px;
-    font-family: 'Manrope', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
+    padding: 7px 12px;
+    border-radius: 2px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
     cursor: pointer;
-    transition: all 0.18s ease;
+    transition: all 0.15s ease;
   }
-  .topic:active { transform: scale(0.96); }
+  .topic:active { transform: scale(0.97); }
   .topic.active {
     background: var(--ink);
     color: var(--paper);
@@ -158,28 +156,22 @@
   .brief-button {
     display: block;
     width: 100%;
-    margin-top: 26px;
-    padding: 22px;
+    margin-top: 22px;
+    padding: 16px;
     background: var(--ink);
     color: var(--paper);
     border: none;
-    border-radius: 4px;
-    font-family: 'Fraunces', serif;
-    font-weight: 400;
-    font-variation-settings: "opsz" 36;
-    font-size: 22px;
-    letter-spacing: 0.01em;
+    border-radius: 2px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
     cursor: pointer;
-    transition: transform 0.15s ease;
-    box-shadow: var(--shadow);
+    transition: opacity 0.15s ease;
   }
-  .brief-button:active { transform: scale(0.99); }
-  .brief-button:disabled { opacity: 0.6; cursor: wait; }
-  .brief-button em {
-    font-style: italic;
-    font-weight: 300;
-    color: var(--gold);
-  }
+  .brief-button:active { opacity: 0.75; }
+  .brief-button:disabled { opacity: 0.5; cursor: wait; }
 
   /* LOADING STATE */
   .loading {
@@ -188,23 +180,22 @@
     padding: 40px 20px;
   }
   .loading-headline {
-    font-family: 'Fraunces', serif;
+    font-family: 'Source Serif 4', serif;
     font-style: italic;
-    font-weight: 300;
-    font-size: 20px;
+    font-weight: 400;
+    font-size: 17px;
     color: var(--ink-soft);
-    margin-bottom: 24px;
+    margin-bottom: 22px;
   }
   .loading-bars {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     justify-content: center;
   }
   .loading-bars span {
-    width: 4px;
-    height: 28px;
+    width: 3px;
+    height: 22px;
     background: var(--ink);
-    border-radius: 2px;
     animation: pulse 1.2s ease-in-out infinite;
   }
   .loading-bars span:nth-child(2) { animation-delay: 0.1s; }
@@ -217,67 +208,68 @@
     50% { transform: scaleY(1); opacity: 1; }
   }
 
-  /* STORIES */
+  /* STORIES — NYT card layout */
   .stories {
-    margin-top: 40px;
+    margin-top: 28px;
   }
 
   .story {
-    padding: 26px 0;
+    padding: 20px 0;
     border-bottom: 1px solid var(--rule);
     cursor: pointer;
-    display: grid;
-    grid-template-columns: 52px 1fr;
-    gap: 16px;
-    transition: opacity 0.2s ease, background 0.2s ease;
-    animation: riseIn 0.5s ease-out backwards;
+    transition: opacity 0.2s ease;
+    animation: riseIn 0.4s ease-out backwards;
   }
-  .story:active { opacity: 0.6; }
+  .story:first-child {
+    padding-top: 4px;
+  }
+  .story:active { opacity: 0.55; }
   .story.playing {
-    background: linear-gradient(90deg, rgba(196,154,62,0.14), transparent 70%);
-    margin: 0 -22px;
-    padding: 26px 22px;
+    background: var(--paper-deep);
+    margin: 0 -20px;
+    padding: 20px;
+    border-bottom-color: var(--rule);
   }
 
-  .story-number {
-    font-family: 'Fraunces', serif;
-    font-weight: 200;
-    font-variation-settings: "opsz" 144;
-    font-size: 48px;
-    line-height: 1;
-    color: var(--ink-mute);
-    letter-spacing: -0.03em;
+  /* Kicker — small caps section line above headline */
+  .story-meta {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: 8px;
   }
-  .story.playing .story-number {
+  .story-meta .source {
+    color: var(--accent);
+  }
+  .story-meta .sep {
+    color: var(--ink-faint);
+    font-weight: 400;
+  }
+
+  /* Headline */
+  .story-title {
+    font-family: 'Source Serif 4', 'Times New Roman', serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.18;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .story.playing .story-title {
     color: var(--accent);
   }
 
-  .story-meta {
-    display: flex;
-    gap: 8px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--ink-mute);
-    margin-bottom: 10px;
-  }
-  .story-meta .source { color: var(--accent); }
-
-  .story-title {
-    font-family: 'Fraunces', serif;
-    font-weight: 500;
-    font-variation-settings: "opsz" 36, "SOFT" 30;
-    font-size: 22px;
-    line-height: 1.18;
-    letter-spacing: -0.01em;
-    color: var(--ink);
-    margin-bottom: 10px;
-  }
-
+  /* Summary / dek */
   .story-summary {
+    font-family: 'Source Serif 4', serif;
     font-size: 15px;
-    line-height: 1.55;
+    line-height: 1.5;
     color: var(--ink-soft);
   }
 
@@ -289,11 +281,11 @@
     right: 0;
     background: var(--ink);
     color: var(--paper);
-    padding: 16px 22px max(env(safe-area-inset-bottom), 18px);
+    padding: 14px 20px max(env(safe-area-inset-bottom), 16px);
     transform: translateY(110%);
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 50;
-    box-shadow: 0 -8px 32px rgba(0,0,0,0.22);
+    box-shadow: 0 -2px 16px rgba(0,0,0,0.15);
   }
   .playbar.visible { transform: translateY(0); }
 
@@ -308,17 +300,17 @@
 
   .playbar-text { min-width: 0; }
   .playbar-label {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 700;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 4px;
+    color: var(--ink-faint);
+    margin-bottom: 3px;
   }
   .playbar-title {
-    font-family: 'Fraunces', serif;
-    font-size: 15px;
-    font-weight: 500;
+    font-family: 'Source Serif 4', serif;
+    font-size: 14px;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -326,116 +318,116 @@
 
   .playbar-controls {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     align-items: center;
   }
 
   .ctrl {
-    width: 44px;
-    height: 44px;
-    border-radius: 999px;
+    width: 40px;
+    height: 40px;
+    border-radius: 2px;
     background: transparent;
-    border: 1px solid rgba(239,231,214,0.25);
+    border: 1px solid rgba(255,255,255,0.2);
     color: var(--paper);
     display: grid;
     place-items: center;
     cursor: pointer;
     transition: all 0.15s ease;
   }
-  .ctrl:active { transform: scale(0.92); background: rgba(239,231,214,0.12); }
+  .ctrl:active { transform: scale(0.94); background: rgba(255,255,255,0.1); }
   .ctrl.primary {
     background: var(--paper);
     color: var(--ink);
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
+    border-color: var(--paper);
   }
-  .ctrl svg { width: 18px; height: 18px; }
-  .ctrl.primary svg { width: 22px; height: 22px; }
+  .ctrl svg { width: 16px; height: 16px; }
+  .ctrl.primary svg { width: 20px; height: 20px; }
 
   .speed-row {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     justify-content: center;
-    margin-top: 14px;
+    margin-top: 12px;
   }
   .speed-pill {
-    background: rgba(239,231,214,0.08);
-    border: 1px solid rgba(239,231,214,0.2);
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
     color: var(--paper);
-    font-family: 'Manrope', sans-serif;
-    font-size: 12px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 11px;
     font-weight: 600;
-    padding: 5px 11px;
-    border-radius: 999px;
+    padding: 4px 10px;
+    border-radius: 2px;
     cursor: pointer;
+    letter-spacing: 0.02em;
   }
   .speed-pill.active {
-    background: var(--gold);
+    background: var(--paper);
     color: var(--ink);
-    border-color: var(--gold);
+    border-color: var(--paper);
   }
 
   /* ERROR */
   .error {
-    margin-top: 28px;
-    padding: 16px 18px;
-    border-left: 3px solid var(--accent);
-    background: rgba(184,66,31,0.06);
+    margin-top: 24px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--tag);
+    background: var(--paper-deep);
+    font-family: 'Source Serif 4', serif;
     font-size: 14px;
     color: var(--ink-soft);
-    border-radius: 0 4px 4px 0;
   }
 
   /* HINT / FOOTNOTE */
   .hint {
-    margin-top: 16px;
-    font-family: 'Fraunces', serif;
+    margin-top: 14px;
+    font-family: 'Source Serif 4', serif;
     font-style: italic;
-    font-weight: 300;
-    font-size: 14px;
+    font-weight: 400;
+    font-size: 13px;
     color: var(--ink-mute);
     text-align: center;
   }
   .footnote {
     text-align: center;
-    margin-top: 50px;
+    margin-top: 48px;
     padding: 24px 0;
-    font-family: 'Fraunces', serif;
+    border-top: 1px solid var(--ink);
+    font-family: 'Source Serif 4', serif;
     font-style: italic;
-    font-weight: 300;
-    font-size: 13px;
+    font-weight: 400;
+    font-size: 12px;
     color: var(--ink-mute);
+    letter-spacing: 0.04em;
   }
 
   /* SECTION DIVIDER */
   .section-divider {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin: 56px 0 28px;
+    gap: 12px;
+    margin: 48px 0 8px;
   }
   .section-divider::before,
   .section-divider::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: var(--rule);
+    background: var(--ink);
   }
   .section-divider span {
-    font-family: 'Fraunces', serif;
+    font-family: 'Source Serif 4', serif;
     font-style: italic;
-    font-weight: 300;
-    font-size: 14px;
-    color: var(--ink-mute);
-    letter-spacing: 0.04em;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--ink-soft);
   }
 
   /* INBOX STORY VARIANT */
-  .story.inbox .story-number {
-    color: var(--gold);
-  }
   .story.inbox .story-meta .source {
-    color: var(--gold);
+    color: var(--ink);
   }
 
   @keyframes riseIn {
@@ -452,35 +444,38 @@
 <body>
 <div class="app">
   <header class="masthead">
-    <div class="date" id="date"></div>
-    <h1 class="wordmark">Dis<em>patch</em></h1>
-    <div class="tagline">the day's news, read aloud</div>
+    <div class="date-bar">
+      <span id="date"></span>
+      <span class="edition">Today's Edition</span>
+    </div>
+    <h1 class="wordmark">Digest</h1>
+    <div class="tagline">All the news you follow, read aloud</div>
   </header>
 
   <section class="topics-section">
-    <div class="label">Today I want to hear about</div>
+    <div class="label">The Front Page</div>
     <div class="topics" id="topics"></div>
     <button class="brief-button" id="brief" onclick="brief()">
-      Brief me on <em>today</em>
+      Brief Me on Today
     </button>
-    <div class="hint" id="hint">Tap any pill to add or remove a topic</div>
+    <div class="hint" id="hint">Tap any topic to add or remove it</div>
   </section>
 
   <div id="content"></div>
 
-  <div class="section-divider"><span>and from your inbox</span></div>
+  <div class="section-divider"><span>From Your Inbox</span></div>
 
   <section class="topics-section">
-    <div class="label">Yesterday's email, summarized</div>
+    <div class="label">Yesterday's Mail</div>
     <button class="brief-button" id="inbox-btn" onclick="readInbox()">
-      Summarize my <em>inbox</em>
+      Summarize My Inbox
     </button>
-    <div class="hint" id="inbox-hint">Reads everything from the past 24 hours</div>
+    <div class="hint" id="inbox-hint">Everything from the past 24 hours</div>
   </section>
 
   <div id="inbox-content"></div>
 
-  <div class="footnote">— Fin —</div>
+  <div class="footnote">— END OF EDITION —</div>
 </div>
 
 <div class="playbar" id="playbar">
@@ -558,7 +553,7 @@ Aim for variety across systems (HCA, Ascension, Kaiser Permanente, Mass General 
   // DATE
   const today = new Date();
   document.getElementById('date').textContent =
-    today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
 
   // TOPICS
   const topicsEl = document.getElementById('topics');
@@ -603,7 +598,7 @@ Aim for variety across systems (HCA, Ascension, Kaiser Permanente, Mass General 
     document.getElementById('hint').style.display = 'none';
     document.getElementById('content').innerHTML = `
       <div class="loading">
-        <div class="loading-headline">Skimming the morning papers…</div>
+        <div class="loading-headline">Going to press…</div>
         <div class="loading-bars"><span></span><span></span><span></span><span></span><span></span></div>
       </div>
     `;
@@ -668,13 +663,13 @@ Exactly 10 to 12 items. Return only the JSON array.`;
       state.stories = stories;
       state.currentIndex = -1;
       renderStories();
-      btn.innerHTML = 'Brief me <em>again</em>';
+      btn.innerHTML = 'Brief Me Again';
       btn.disabled = false;
     } catch (err) {
       console.error(err);
       document.getElementById('content').innerHTML = '';
       showError("Couldn't fetch the news right now — " + err.message);
-      btn.innerHTML = 'Try <em>again</em>';
+      btn.innerHTML = 'Try Again';
       btn.disabled = false;
     }
   }
@@ -695,7 +690,7 @@ Exactly 10 to 12 items. Return only the JSON array.`;
     document.getElementById('inbox-hint').style.display = 'none';
     document.getElementById('inbox-content').innerHTML = `
       <div class="loading">
-        <div class="loading-headline">Opening yesterday's mail…</div>
+        <div class="loading-headline">Sorting the morning mail…</div>
         <div class="loading-bars"><span></span><span></span><span></span><span></span><span></span></div>
       </div>
     `;
@@ -755,13 +750,13 @@ Return only the JSON array.`;
 
       state.inboxItems = items;
       renderInbox();
-      btn.innerHTML = 'Refresh <em>inbox</em>';
+      btn.innerHTML = 'Refresh Inbox';
       btn.disabled = false;
     } catch (err) {
       console.error(err);
       document.getElementById('inbox-content').innerHTML = '';
       showInboxError("Couldn't read your inbox — " + err.message + ". Make sure Gmail is connected in your Claude settings.");
-      btn.innerHTML = 'Try <em>again</em>';
+      btn.innerHTML = 'Try Again';
       btn.disabled = false;
     }
   }
@@ -772,16 +767,13 @@ Return only the JSON array.`;
     const html = `<div class="stories">
       ${state.inboxItems.map((s, i) => `
         <div class="story inbox" data-i="${offset + i}" onclick="playStory(${offset + i})">
-          <div class="story-number">${String(i+1).padStart(2,'0')}</div>
-          <div>
-            <div class="story-meta">
-              <span class="source">${escapeHtml(s.source || '')}</span>
-              <span>·</span>
-              <span>${escapeHtml(s.category || '')}</span>
-            </div>
-            <div class="story-title">${escapeHtml(s.title || '')}</div>
-            <div class="story-summary">${escapeHtml(s.summary || '')}</div>
+          <div class="story-meta">
+            <span class="source">${escapeHtml(s.source || '')}</span>
+            <span class="sep">|</span>
+            <span>${escapeHtml(s.category || '')}</span>
           </div>
+          <div class="story-title">${escapeHtml(s.title || '')}</div>
+          <div class="story-summary">${escapeHtml(s.summary || '')}</div>
         </div>
       `).join('')}
     </div>`;
@@ -792,16 +784,13 @@ Return only the JSON array.`;
     const html = `<div class="stories">
       ${state.stories.map((s, i) => `
         <div class="story" data-i="${i}" onclick="playStory(${i})">
-          <div class="story-number">${String(i+1).padStart(2,'0')}</div>
-          <div>
-            <div class="story-meta">
-              <span class="source">${escapeHtml(s.source || '')}</span>
-              <span>·</span>
-              <span>${escapeHtml(s.category || '')}</span>
-            </div>
-            <div class="story-title">${escapeHtml(s.title || '')}</div>
-            <div class="story-summary">${escapeHtml(s.summary || '')}</div>
+          <div class="story-meta">
+            <span class="source">${escapeHtml(s.source || '')}</span>
+            <span class="sep">|</span>
+            <span>${escapeHtml(s.category || '')}</span>
           </div>
+          <div class="story-title">${escapeHtml(s.title || '')}</div>
+          <div class="story-summary">${escapeHtml(s.summary || '')}</div>
         </div>
       `).join('')}
     </div>`;
