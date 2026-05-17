@@ -503,7 +503,7 @@
   // Example: 'https://digest-api.your-subdomain.workers.dev'
   // Leave as null to disable API calls (useful while you're still setting up).
   // ========================================================================
-  const WORKER_URL = 'https://digest-api.liu-lucy.workers.dev';
+  const WORKER_URL = 'PASTE_YOUR_WORKER_URL_HERE';
 
   const TOPICS = [
     {
@@ -645,7 +645,7 @@ Exactly 10 to 12 items. Return only the JSON array.`;
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model: "claude-sonnet-4-6",
           max_tokens: 4096,
           messages: [{ role: "user", content: prompt }],
           tools: [{ type: "web_search_20250305", name: "web_search" }]
