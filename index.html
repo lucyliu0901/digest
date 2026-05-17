@@ -638,7 +638,7 @@ Return ONLY a JSON array (no markdown fences, no commentary before or after) in 
 Exactly 10 to 12 items. Return only the JSON array.`;
 
     try {
-      if (!WORKER_URL || WORKER_URL === 'https://digest-api.liu-lucy.workers.dev/') {
+      if (!WORKER_URL || WORKER_URL === 'PASTE_YOUR_WORKER_URL_HERE') {
         throw new Error('Worker URL not configured. Edit index.html and set WORKER_URL at the top of the script.');
       }
       const response = await fetch(WORKER_URL, {
