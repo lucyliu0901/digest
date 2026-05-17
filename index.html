@@ -466,14 +466,10 @@
   <div class="section-divider"><span>From Your Inbox</span></div>
 
   <section class="topics-section">
-    <div class="label">Yesterday's Mail</div>
-    <button class="brief-button" id="inbox-btn" onclick="readInbox()">
-      Summarize My Inbox
-    </button>
-    <div class="hint" id="inbox-hint">Everything from the past 24 hours</div>
+    <div class="hint" style="text-align: left; padding: 16px 0;">
+      Inbox summarization is only available in the Claude.ai chat version of this app — it relies on the Gmail connection that lives there. To use it, open the original artifact in Claude. A standalone version would require setting up Google OAuth, which is a bigger project for another day.
+    </div>
   </section>
-
-  <div id="inbox-content"></div>
 
   <div class="footnote">— END OF EDITION —</div>
 </div>
@@ -502,6 +498,13 @@
 </div>
 
 <script>
+  // ========================================================================
+  // CONFIG — paste your Cloudflare Worker URL here after you deploy it.
+  // Example: 'https://digest-api.your-subdomain.workers.dev'
+  // Leave as null to disable API calls (useful while you're still setting up).
+  // ========================================================================
+  const WORKER_URL = 'PASTE_YOUR_WORKER_URL_HERE';
+
   const TOPICS = [
     {
       id: 'mind',
@@ -635,7 +638,10 @@ Return ONLY a JSON array (no markdown fences, no commentary before or after) in 
 Exactly 10 to 12 items. Return only the JSON array.`;
 
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      if (!WORKER_URL || WORKER_URL === 'PASTE_YOUR_WORKER_URL_HERE') {
+        throw new Error('Worker URL not configured. Edit index.html and set WORKER_URL at the top of the script.');
+      }
+      const response = await fetch(WORKER_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
