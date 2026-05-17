@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dispatch">
+<meta name="theme-color" content="#EFE7D6">
+<title>Dispatch — Daily news, read to you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #EFE7D6;
+    --paper-deep: #E5DBC6;
+    --ink: #1F1A14;
+    --ink-soft: #4A3F30;
+    --ink-mute: #8A7C66;
+    --rule: #D5C8AB;
+    --accent: #B8421F;
+    --gold: #C49A3E;
+    --shadow: 0 1px 0 rgba(31,26,20,0.06), 0 8px 24px -8px rgba(31,26,20,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Manrope', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: none;
+    min-height: 100vh;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse at top, rgba(196,154,62,0.10), transparent 55%),
+      radial-gradient(ellipse at bottom right, rgba(184,66,31,0.06), transparent 50%),
+      var(--paper);
+    padding-bottom: 180px;
+  }
+
+  /* Paper grain noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    z-index: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.10 0 0 0 0 0.08 0 0 0 0.22 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    mix-blend-mode: multiply;
+  }
+
+  .app {
+    max-width: 540px;
+    margin: 0 auto;
+    padding: max(env(safe-area-inset-top), 24px) 22px 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    text-align: center;
+    padding: 8px 0 28px;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+  .masthead::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .date {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 10px;
+  }
+
+  .wordmark {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-variation-settings: "opsz" 144, "SOFT" 0;
+    font-size: clamp(52px, 13vw, 72px);
+    line-height: 0.95;
+    color: var(--ink);
+    letter-spacing: -0.025em;
+  }
+  .wordmark em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--accent);
+  }
+
+  .tagline {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-top: 8px;
+    letter-spacing: 0.01em;
+  }
+
+  /* TOPIC SELECTION */
+  .topics-section {
+    margin-top: 32px;
+  }
+
+  .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 14px;
+  }
+
+  .topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .topic {
+    border: 1px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    padding: 9px 16px;
+    border-radius: 999px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+  .topic:active { transform: scale(0.96); }
+  .topic.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* PRIMARY BUTTON */
+  .brief-button {
+    display: block;
+    width: 100%;
+    margin-top: 26px;
+    padding: 22px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 4px;
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-variation-settings: "opsz" 36;
+    font-size: 22px;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    box-shadow: var(--shadow);
+  }
+  .brief-button:active { transform: scale(0.99); }
+  .brief-button:disabled { opacity: 0.6; cursor: wait; }
+  .brief-button em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--gold);
+  }
+
+  /* LOADING STATE */
+  .loading {
+    margin-top: 40px;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .loading-headline {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 20px;
+    color: var(--ink-soft);
+    margin-bottom: 24px;
+  }
+  .loading-bars {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+  }
+  .loading-bars span {
+    width: 4px;
+    height: 28px;
+    background: var(--ink);
+    border-radius: 2px;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .loading-bars span:nth-child(2) { animation-delay: 0.1s; }
+  .loading-bars span:nth-child(3) { animation-delay: 0.2s; }
+  .loading-bars span:nth-child(4) { animation-delay: 0.3s; }
+  .loading-bars span:nth-child(5) { animation-delay: 0.4s; }
+
+  @keyframes pulse {
+    0%, 100% { transform: scaleY(0.35); opacity: 0.4; }
+    50% { transform: scaleY(1); opacity: 1; }
+  }
+
+  /* STORIES */
+  .stories {
+    margin-top: 40px;
+  }
+
+  .story {
+    padding: 26px 0;
+    border-bottom: 1px solid var(--rule);
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 16px;
+    transition: opacity 0.2s ease, background 0.2s ease;
+    animation: riseIn 0.5s ease-out backwards;
+  }
+  .story:active { opacity: 0.6; }
+  .story.playing {
+    background: linear-gradient(90deg, rgba(196,154,62,0.14), transparent 70%);
+    margin: 0 -22px;
+    padding: 26px 22px;
+  }
+
+  .story-number {
+    font-family: 'Fraunces', serif;
+    font-weight: 200;
+    font-variation-settings: "opsz" 144;
+    font-size: 48px;
+    line-height: 1;
+    color: var(--ink-mute);
+    letter-spacing: -0.03em;
+  }
+  .story.playing .story-number {
+    color: var(--accent);
+  }
+
+  .story-meta {
+    display: flex;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 10px;
+  }
+  .story-meta .source { color: var(--accent); }
+
+  .story-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 36, "SOFT" 30;
+    font-size: 22px;
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  .story-summary {
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  /* PLAY BAR */
+  .playbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 16px 22px max(env(safe-area-inset-bottom), 18px);
+    transform: translateY(110%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 50;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.22);
+  }
+  .playbar.visible { transform: translateY(0); }
+
+  .playbar-inner {
+    max-width: 540px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .playbar-text { min-width: 0; }
+  .playbar-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .playbar-title {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .playbar-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .ctrl {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: transparent;
+    border: 1px solid rgba(239,231,214,0.25);
+    color: var(--paper);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .ctrl:active { transform: scale(0.92); background: rgba(239,231,214,0.12); }
+  .ctrl.primary {
+    background: var(--paper);
+    color: var(--ink);
+    width: 52px;
+    height: 52px;
+  }
+  .ctrl svg { width: 18px; height: 18px; }
+  .ctrl.primary svg { width: 22px; height: 22px; }
+
+  .speed-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 14px;
+  }
+  .speed-pill {
+    background: rgba(239,231,214,0.08);
+    border: 1px solid rgba(239,231,214,0.2);
+    color: var(--paper);
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 11px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .speed-pill.active {
+    background: var(--gold);
+    color: var(--ink);
+    border-color: var(--gold);
+  }
+
+  /* ERROR */
+  .error {
+    margin-top: 28px;
+    padding: 16px 18px;
+    border-left: 3px solid var(--accent);
+    background: rgba(184,66,31,0.06);
+    font-size: 14px;
+    color: var(--ink-soft);
+    border-radius: 0 4px 4px 0;
+  }
+
+  /* HINT / FOOTNOTE */
+  .hint {
+    margin-top: 16px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--ink-mute);
+    text-align: center;
+  }
+  .footnote {
+    text-align: center;
+    margin-top: 50px;
+    padding: 24px 0;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 13px;
+    color: var(--ink-mute);
+  }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 56px 0 28px;
+  }
+  .section-divider::before,
+  .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+  .section-divider span {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--ink-mute);
+    letter-spacing: 0.04em;
+  }
+
+  /* INBOX STORY VARIANT */
+  .story.inbox .story-number {
+    color: var(--gold);
+  }
+  .story.inbox .story-meta .source {
+    color: var(--gold);
+  }
+
+  @keyframes riseIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .story:nth-child(1) { animation-delay: 0.05s; }
+  .story:nth-child(2) { animation-delay: 0.13s; }
+  .story:nth-child(3) { animation-delay: 0.21s; }
+  .story:nth-child(4) { animation-delay: 0.29s; }
+  .story:nth-child(5) { animation-delay: 0.37s; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="masthead">
+    <div class="date" id="date"></div>
+    <h1 class="wordmark">Dis<em>patch</em></h1>
+    <div class="tagline">the day's news, read aloud</div>
+  </header>
+
+  <section class="topics-section">
+    <div class="label">Today I want to hear about</div>
+    <div class="topics" id="topics"></div>
+    <button class="brief-button" id="brief" onclick="brief()">
+      Brief me on <em>today</em>
+    </button>
+    <div class="hint" id="hint">Tap any pill to add or remove a topic</div>
+  </section>
+
+  <div id="content"></div>
+
+  <div class="section-divider"><span>and from your inbox</span></div>
+
+  <section class="topics-section">
+    <div class="label">Yesterday's email, summarized</div>
+    <button class="brief-button" id="inbox-btn" onclick="readInbox()">
+      Summarize my <em>inbox</em>
+    </button>
+    <div class="hint" id="inbox-hint">Reads everything from the past 24 hours</div>
+  </section>
+
+  <div id="inbox-content"></div>
+
+  <div class="footnote">— Fin —</div>
+</div>
+
+<div class="playbar" id="playbar">
+  <div class="playbar-inner">
+    <div class="playbar-text">
+      <div class="playbar-label" id="pb-label">Now Reading</div>
+      <div class="playbar-title" id="pb-title">—</div>
+    </div>
+    <div class="playbar-controls">
+      <button class="ctrl primary" id="pb-play" onclick="togglePlay()" aria-label="Play / pause">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="ctrl" onclick="nextStory()" aria-label="Skip story">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm10-12v12h2V6h-2z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="speed-row">
+    <button class="speed-pill" data-speed="0.9" onclick="setSpeed(0.9)">0.9×</button>
+    <button class="speed-pill active" data-speed="1" onclick="setSpeed(1)">1×</button>
+    <button class="speed-pill" data-speed="1.2" onclick="setSpeed(1.2)">1.2×</button>
+    <button class="speed-pill" data-speed="1.4" onclick="setSpeed(1.4)">1.4×</button>
+  </div>
+</div>
+
+<script>
+  const TOPICS = [
+    {
+      id: 'mind',
+      label: 'Brain & Mind',
+      scope: `Neurobiology and psychology research findings about how humans think and how the brain works for cognition and feeling. Prefer peer-reviewed research, preprints, and reporting from Nature, Science, Cell, Neuron, Quanta, STAT, The Transmitter, Scientific American, or major university press releases.`
+    },
+    {
+      id: 'health',
+      label: 'Health Systems',
+      scope: `Healthcare industry news about large U.S. health systems, major payers, and the business of healthcare. Each day, search these publications specifically and pull the most notable story or two from each that has fresh news:
+
+1. Modern Healthcare (modernhealthcare.com) — user has a subscription, prioritize for industry deep dives
+2. The New York Times health coverage (nytimes.com/section/health) — user has a subscription
+3. STAT News (statnews.com) — strong on biotech, pharma policy, and health business
+4. Fierce Healthcare (fiercehealthcare.com)
+5. Fierce Payer (fiercehealthcare.com/payer)
+6. Fierce Pharma (fiercepharma.com)
+7. Healthcare IT News (healthcareitnews.com) — health tech, EHRs, digital health
+8. KFF Health News (kffhealthnews.org) — policy, coverage, and investigative reporting
+
+Aim for variety across systems (HCA, Ascension, Kaiser Permanente, Mass General Brigham, CommonSpirit, etc.), payers (UnitedHealth, Elevance, CVS / Aetna, Cigna, Humana), and pharma. Prefer substantive industry reporting over consumer health features. If a publication has no fresh news on a given day, skip it rather than padding. Note the source publication clearly for each story.`
+    },
+    {
+      id: 'peds',
+      label: 'Pediatrics & VBC',
+      scope: `Pediatrics news and value-based care developments: payment models, ACOs, capitation, quality-based contracts, and especially how these apply to pediatrics and primary care. Look at Health Affairs, AAP News, Modern Healthcare, STAT, and CMS announcements.`
+    },
+    {
+      id: 'nyc',
+      label: 'NYC Restaurants',
+      scope: `Newly opened or recently highly reviewed restaurants in New York City. Look at Eater NY, New York Times restaurant reviews (Pete Wells / Priya Krishna), The Infatuation, New York Magazine's Grub Street, Resy editorial, and Bon Appétit. Prefer recent openings and recent positive reviews.`
+    }
+  ];
+  const state = {
+    selectedTopics: new Set(['mind', 'health', 'peds', 'nyc']),
+    stories: [],
+    inboxItems: [],
+    currentIndex: -1,
+    speaking: false,
+    speed: 1,
+    voice: null
+  };
+
+  // Combined queue: news stories first, then inbox items
+  function allItems() {
+    return [...state.stories, ...state.inboxItems];
+  }
+
+  // DATE
+  const today = new Date();
+  document.getElementById('date').textContent =
+    today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+  // TOPICS
+  const topicsEl = document.getElementById('topics');
+  TOPICS.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'topic' + (state.selectedTopics.has(t.id) ? ' active' : '');
+    b.textContent = t.label;
+    b.onclick = () => {
+      if (state.selectedTopics.has(t.id)) state.selectedTopics.delete(t.id);
+      else state.selectedTopics.add(t.id);
+      b.classList.toggle('active');
+    };
+    topicsEl.appendChild(b);
+  });
+
+  // VOICE
+  function pickVoice() {
+    const voices = speechSynthesis.getVoices();
+    if (!voices.length) return null;
+    const preferred = ['Samantha', 'Ava', 'Allison', 'Karen', 'Daniel', 'Google US English'];
+    for (const name of preferred) {
+      const v = voices.find(v => v.name.includes(name));
+      if (v) return v;
+    }
+    return voices.find(v => v.lang === 'en-US') ||
+           voices.find(v => v.lang.startsWith('en')) ||
+           voices[0];
+  }
+  speechSynthesis.onvoiceschanged = () => { state.voice = pickVoice(); };
+  state.voice = pickVoice();
+
+  // FETCH NEWS
+  async function brief() {
+    if (state.selectedTopics.size === 0) {
+      showError('Pick at least one topic first.');
+      return;
+    }
+
+    const btn = document.getElementById('brief');
+    btn.disabled = true;
+    btn.textContent = "Gathering today's stories…";
+    document.getElementById('hint').style.display = 'none';
+    document.getElementById('content').innerHTML = `
+      <div class="loading">
+        <div class="loading-headline">Skimming the morning papers…</div>
+        <div class="loading-bars"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+    `;
+
+    const selectedScopes = TOPICS
+      .filter(t => state.selectedTopics.has(t.id))
+      .map(t => `- ${t.label}: ${t.scope}`)
+      .join('\n');
+    const dateStr = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+    const prompt = `Find 10-12 substantive recent stories (from the past few days, prioritizing today, ${dateStr}) across these specific topics I follow:
+
+${selectedScopes}
+
+Search the web. Skip clickbait, listicles, and pure opinion. Some categories may not have fresh news every single day — that is fine. Allocate stories roughly like this when all four topics are selected:
+- Health Systems: 5-6 stories (this topic spans 8 publications, so it gets the largest share)
+- Brain & Mind: 2 stories
+- Pediatrics & VBC: 2 stories
+- NYC Restaurants: 1-2 stories
+
+Adjust the allocation if a category has no fresh news, or if only some topics are selected. For Health Systems specifically, try to pull from different publications rather than several stories from the same source.
+
+Return ONLY a JSON array (no markdown fences, no commentary before or after) in this exact shape:
+
+[
+  {
+    "title": "The story's headline, rewritten naturally if needed",
+    "summary": "A 2 to 3 sentence summary written for listening aloud. Use natural spoken language. Expand abbreviations. Avoid parenthetical asides. The listener has only their ears, so be vivid and self-contained.",
+    "source": "Publication name",
+    "category": "Which of my topics this belongs to (use the short label like 'Brain & Mind')"
+  }
+]
+
+Exactly 10 to 12 items. Return only the JSON array.`;
+
+    try {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 4096,
+          messages: [{ role: "user", content: prompt }],
+          tools: [{ type: "web_search_20250305", name: "web_search" }]
+        })
+      });
+
+      if (!response.ok) throw new Error(`API error ${response.status}`);
+      const data = await response.json();
+
+      const text = (data.content || [])
+        .filter(b => b.type === 'text')
+        .map(b => b.text)
+        .join('\n');
+
+      const cleaned = text.replace(/```json|```/g, '').trim();
+      const m = cleaned.match(/\[[\s\S]*\]/);
+      if (!m) throw new Error('Could not parse stories from response');
+      const stories = JSON.parse(m[0]);
+      if (!Array.isArray(stories) || !stories.length) throw new Error('No stories returned');
+
+      state.stories = stories;
+      state.currentIndex = -1;
+      renderStories();
+      btn.innerHTML = 'Brief me <em>again</em>';
+      btn.disabled = false;
+    } catch (err) {
+      console.error(err);
+      document.getElementById('content').innerHTML = '';
+      showError("Couldn't fetch the news right now — " + err.message);
+      btn.innerHTML = 'Try <em>again</em>';
+      btn.disabled = false;
+    }
+  }
+
+  function showError(msg) {
+    document.getElementById('content').innerHTML = `<div class="error">${escapeHtml(msg)}</div>`;
+  }
+
+  function showInboxError(msg) {
+    document.getElementById('inbox-content').innerHTML = `<div class="error">${escapeHtml(msg)}</div>`;
+  }
+
+  // INBOX DIGEST
+  async function readInbox() {
+    const btn = document.getElementById('inbox-btn');
+    btn.disabled = true;
+    btn.textContent = 'Reading your inbox…';
+    document.getElementById('inbox-hint').style.display = 'none';
+    document.getElementById('inbox-content').innerHTML = `
+      <div class="loading">
+        <div class="loading-headline">Opening yesterday's mail…</div>
+        <div class="loading-bars"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+    `;
+
+    const prompt = `Use the Gmail tools to fetch emails I received in the past 24 hours (the most recent inbox messages, roughly 15-25 of them). Then summarize them for me as a morning briefing I will listen to.
+
+Group similar messages together (newsletters from the same publication, multiple notifications from one service, threads of personal email). Skip pure marketing/promotional blasts entirely unless they contain something genuinely time-sensitive.
+
+For each item or group, write a 1-2 sentence summary in natural spoken language suitable for hearing aloud. Note who sent it and whether it appears to need a reply.
+
+Order by importance: things that look like they need my attention first (personal email, work that mentions me, meeting invites, things marked important), then newsletters and reads, then everything else.
+
+Aim for 4 to 8 items total — group aggressively so I'm not hearing every single newsletter as a separate item.
+
+Return ONLY a JSON array (no markdown fences, no commentary) in this exact shape:
+
+[
+  {
+    "title": "Short headline for this item or group",
+    "summary": "1-2 sentence spoken summary",
+    "source": "Sender name, or 'Multiple senders' if grouped",
+    "category": "One of: Needs reply, Personal, Work, Newsletter, Notification, Other"
+  }
+]
+
+Return only the JSON array.`;
+
+    try {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 2048,
+          messages: [{ role: "user", content: prompt }],
+          mcp_servers: [{
+            type: "url",
+            url: "https://gmailmcp.googleapis.com/mcp/v1",
+            name: "gmail"
+          }]
+        })
+      });
+
+      if (!response.ok) throw new Error(`API error ${response.status}`);
+      const data = await response.json();
+
+      const text = (data.content || [])
+        .filter(b => b.type === 'text')
+        .map(b => b.text)
+        .join('\n');
+
+      const cleaned = text.replace(/```json|```/g, '').trim();
+      const m = cleaned.match(/\[[\s\S]*\]/);
+      if (!m) throw new Error('Could not parse inbox summary');
+      const items = JSON.parse(m[0]);
+      if (!Array.isArray(items) || !items.length) throw new Error('No inbox items returned');
+
+      state.inboxItems = items;
+      renderInbox();
+      btn.innerHTML = 'Refresh <em>inbox</em>';
+      btn.disabled = false;
+    } catch (err) {
+      console.error(err);
+      document.getElementById('inbox-content').innerHTML = '';
+      showInboxError("Couldn't read your inbox — " + err.message + ". Make sure Gmail is connected in your Claude settings.");
+      btn.innerHTML = 'Try <em>again</em>';
+      btn.disabled = false;
+    }
+  }
+
+  function renderInbox() {
+    // Inbox items use indices offset by state.stories.length in the combined play queue
+    const offset = state.stories.length;
+    const html = `<div class="stories">
+      ${state.inboxItems.map((s, i) => `
+        <div class="story inbox" data-i="${offset + i}" onclick="playStory(${offset + i})">
+          <div class="story-number">${String(i+1).padStart(2,'0')}</div>
+          <div>
+            <div class="story-meta">
+              <span class="source">${escapeHtml(s.source || '')}</span>
+              <span>·</span>
+              <span>${escapeHtml(s.category || '')}</span>
+            </div>
+            <div class="story-title">${escapeHtml(s.title || '')}</div>
+            <div class="story-summary">${escapeHtml(s.summary || '')}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+    document.getElementById('inbox-content').innerHTML = html;
+  }
+
+  function renderStories() {
+    const html = `<div class="stories">
+      ${state.stories.map((s, i) => `
+        <div class="story" data-i="${i}" onclick="playStory(${i})">
+          <div class="story-number">${String(i+1).padStart(2,'0')}</div>
+          <div>
+            <div class="story-meta">
+              <span class="source">${escapeHtml(s.source || '')}</span>
+              <span>·</span>
+              <span>${escapeHtml(s.category || '')}</span>
+            </div>
+            <div class="story-title">${escapeHtml(s.title || '')}</div>
+            <div class="story-summary">${escapeHtml(s.summary || '')}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+    document.getElementById('content').innerHTML = html;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // SPEECH
+  function playStory(i) {
+    state.currentIndex = i;
+    speakCurrent();
+  }
+
+  function speakCurrent() {
+    speechSynthesis.cancel();
+    const items = allItems();
+    const s = items[state.currentIndex];
+    if (!s) return;
+
+    const isInbox = state.currentIndex >= state.stories.length;
+    const localIndex = isInbox ? (state.currentIndex - state.stories.length + 1) : (state.currentIndex + 1);
+    const prefix = isInbox ? `From your inbox. Item ${localIndex}.` : `Story ${localIndex}.`;
+    const text = `${prefix} ${s.title}. ${s.summary}`;
+    const u = new SpeechSynthesisUtterance(text);
+    if (state.voice) u.voice = state.voice;
+    u.rate = state.speed;
+    u.pitch = 1;
+    u.onend = () => {
+      if (state.currentIndex < items.length - 1) {
+        state.currentIndex++;
+        speakCurrent();
+      } else {
+        state.speaking = false;
+        updatePlayIcon();
+        const end = new SpeechSynthesisUtterance("That's everything for today.");
+        if (state.voice) end.voice = state.voice;
+        end.rate = state.speed;
+        speechSynthesis.speak(end);
+      }
+    };
+    u.onerror = () => { state.speaking = false; updatePlayIcon(); };
+
+    speechSynthesis.speak(u);
+    state.speaking = true;
+
+    document.getElementById('playbar').classList.add('visible');
+    updatePlaybar();
+    highlightCurrent();
+    updatePlayIcon();
+  }
+
+  function togglePlay() {
+    const items = allItems();
+    if (state.currentIndex < 0 && items.length > 0) {
+      state.currentIndex = 0;
+      speakCurrent();
+      return;
+    }
+    if (speechSynthesis.speaking && !speechSynthesis.paused) {
+      speechSynthesis.pause();
+      state.speaking = false;
+    } else if (speechSynthesis.paused) {
+      speechSynthesis.resume();
+      state.speaking = true;
+    } else if (items.length > 0) {
+      speakCurrent();
+    }
+    updatePlayIcon();
+  }
+
+  function nextStory() {
+    const items = allItems();
+    if (state.currentIndex < items.length - 1) {
+      state.currentIndex++;
+      speakCurrent();
+    }
+  }
+
+  function setSpeed(s) {
+    state.speed = s;
+    document.querySelectorAll('.speed-pill').forEach(p => {
+      p.classList.toggle('active', parseFloat(p.dataset.speed) === s);
+    });
+    if (state.speaking || speechSynthesis.paused) {
+      speakCurrent();
+    }
+  }
+
+  function updatePlaybar() {
+    const items = allItems();
+    const s = items[state.currentIndex];
+    if (!s) return;
+    const isInbox = state.currentIndex >= state.stories.length;
+    const label = isInbox ? 'Inbox' : 'Now Reading';
+    document.getElementById('pb-label').textContent =
+      `${label} · ${state.currentIndex + 1} of ${items.length}`;
+    document.getElementById('pb-title').textContent = s.title;
+  }
+
+  function updatePlayIcon() {
+    const btn = document.getElementById('pb-play');
+    btn.innerHTML = state.speaking
+      ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+  }
+
+  function highlightCurrent() {
+    document.querySelectorAll('.story').forEach((el, i) => {
+      el.classList.toggle('playing', i === state.currentIndex);
+    });
+    const el = document.querySelector(`.story[data-i="${state.currentIndex}"]`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && speechSynthesis.speaking) {
+      speechSynthesis.pause();
+      state.speaking = false;
+      updatePlayIcon();
+    }
+  });
+  window.addEventListener('pagehide', () => speechSynthesis.cancel());
+</script>
+</body>
+</html>
